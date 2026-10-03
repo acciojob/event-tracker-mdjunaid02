@@ -328,66 +328,40 @@ class App extends React.Component {
 
         <div className="filter-container">
 
-          <button
-            className="btn"
-            onClick={() =>
-              this.setState({
-                currentDate: moment(currentDate)
-                  .subtract(1, "month")
-                  .toDate()
-              })
-            }
-          >
-            Previous
-          </button>
+  <button
+    className="btn"
+    onClick={() =>
+      this.setState({
+        filter: "all"
+      })
+    }
+  >
+    All
+  </button>
 
-          <button
-            className="btn"
-            onClick={() =>
-              this.setState({
-                currentDate: moment(currentDate)
-                  .add(1, "month")
-                  .toDate()
-              })
-            }
-          >
-            Next
-          </button>
+  <button
+    className="btn"
+    onClick={() =>
+      this.setState({
+        filter: "past"
+      })
+    }
+  >
+    Past
+  </button>
 
-          <button
-            className="btn"
-            onClick={() =>
-              this.setState({
-                filter: "all"
-              })
-            }
-          >
-            All
-          </button>
+  <button
+    className="btn"
+    onClick={() =>
+      this.setState({
+        filter: "upcoming"
+      })
+    }
+  >
+    Upcoming
+  </button>
 
-          <button
-            className="btn"
-            onClick={() =>
-              this.setState({
-                filter: "past"
-              })
-            }
-          >
-            Past
-          </button>
-
-          <button
-            className="btn"
-            onClick={() =>
-              this.setState({
-                filter: "upcoming"
-              })
-            }
-          >
-            Upcoming
-          </button>
-
-        </div>
+</div>
 
         {/* CALENDAR */}
 
