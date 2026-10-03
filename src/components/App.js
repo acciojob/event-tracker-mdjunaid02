@@ -92,9 +92,12 @@ class App extends React.Component {
       showEventPopup: false,
 
       selectedEvent: null,
+      selectedDate: new Date(2023, 2, 21),
 
       title: "",
-      location: ""
+      location: "",
+
+      editingEventId: null
     };
   }
 
@@ -106,10 +109,6 @@ class App extends React.Component {
     const { events, filter } = this.state;
 
     const today = moment("2023-03-21");
-
-    if (filter === "all") {
-      return events;
-    }
 
     if (filter === "past") {
       return events.filter(event =>
@@ -154,13 +153,18 @@ class App extends React.Component {
     this.setState({
       showCreatePopup: true,
       title: "",
-      location: ""
+      location: "",
+      selectedDate: this.state.currentDate,
+      editingEventId: null
     });
   };
 
   closeCreatePopup = () => {
     this.setState({
-      showCreatePopup: false
+      showCreatePopup: false,
+      title: "",
+      location: "",
+      editingEventId: null
     });
   };
 
@@ -169,7 +173,8 @@ class App extends React.Component {
       showCreatePopup: true,
       title: "",
       location: "",
-      selectedDate: start
+      selectedDate: start,
+      editingEventId: null
     });
   };
 
@@ -197,12 +202,14 @@ class App extends React.Component {
       return;
     }
 
+    const eventDate = selectedDate || new Date(2023, 2, 21);
+
     const newEvent = {
       id: Date.now(),
       title: title,
       location: location,
-      start: selectedDate || new Date(),
-      end: selectedDate || new Date()
+      start: eventDate,
+      end: eventDate
     };
 
     this.setState({
@@ -258,6 +265,10 @@ class App extends React.Component {
       selectedDate
     } = this.state;
 
+    if (!title.trim()) {
+      return;
+    }
+
     const updatedEvents = events.map(event => {
       if (event.id === editingEventId) {
         return {
@@ -287,7 +298,10 @@ class App extends React.Component {
   // -----------------------------
 
   deleteEvent = () => {
-    const { events, selectedEvent } = this.state;
+    const {
+      events,
+      selectedEvent
+    } = this.state;
 
     const updatedEvents = events.filter(
       event => event.id !== selectedEvent.id
@@ -297,6 +311,16 @@ class App extends React.Component {
       events: updatedEvents,
       showEventPopup: false,
       selectedEvent: null
+    });
+  };
+
+  // -----------------------------
+  // CALENDAR NAVIGATION
+  // -----------------------------
+
+  handleNavigate = date => {
+    this.setState({
+      currentDate: date
     });
   };
 
@@ -324,44 +348,59 @@ class App extends React.Component {
           <h1>Event Tracker</h1>
         </div>
 
-        {/* FILTER BUTTONS */}
+        {/* BUTTONS */}
 
         <div className="filter-container">
 
-  <button
-    className="btn"
-    onClick={() =>
-      this.setState({
-        filter: "all"
-      })
-    }
-  >
-    All
-  </button>
+          {/* 0 - CREATE EVENT */}
 
-  <button
-    className="btn"
-    onClick={() =>
-      this.setState({
-        filter: "past"
-      })
-    }
-  >
-    Past
-  </button>
+          <button
+            className="btn"
+            onClick={this.openCreatePopup}
+          >
+            Create Event
+          </button>
 
-  <button
-    className="btn"
-    onClick={() =>
-      this.setState({
-        filter: "upcoming"
-      })
-    }
-  >
-    Upcoming
-  </button>
+          {/* 1 - ALL */}
 
-</div>
+          <button
+            className="btn"
+            onClick={() =>
+              this.setState({
+                filter: "all"
+              })
+            }
+          >
+            All
+          </button>
+
+          {/* 2 - PAST */}
+
+          <button
+            className="btn"
+            onClick={() =>
+              this.setState({
+                filter: "past"
+              })
+            }
+          >
+            Past
+          </button>
+
+          {/* 3 - UPCOMING */}
+
+          <button
+            className="btn"
+            onClick={() =>
+              this.setState({
+                filter: "upcoming"
+              })
+            }
+          >
+            Upcoming
+          </button>
+
+        </div>
 
         {/* CALENDAR */}
 
@@ -373,11 +412,7 @@ class App extends React.Component {
             startAccessor="start"
             endAccessor="end"
             date={currentDate}
-            onNavigate={date =>
-              this.setState({
-                currentDate: date
-              })
-            }
+            onNavigate={this.handleNavigate}
             onSelectSlot={this.handleSelectSlot}
             onSelectEvent={this.handleSelectEvent}
             selectable
@@ -389,15 +424,6 @@ class App extends React.Component {
 
         </div>
 
-        {/* CREATE EVENT BUTTON */}
-
-        <button
-          className="btn"
-          onClick={this.openCreatePopup}
-        >
-          Create Event
-        </button>
-
         {/* CREATE / EDIT POPUP */}
 
         {showCreatePopup && (
@@ -406,7 +432,9 @@ class App extends React.Component {
             <div className="mm-popup__box">
 
               <div className="mm-popup__box__header">
-                {editingEventId ? "Edit Event" : "Create Event"}
+                {editingEventId
+                  ? "Edit Event"
+                  : "Create Event"}
               </div>
 
               <div className="mm-popup__box__body">
@@ -478,7 +506,9 @@ class App extends React.Component {
 
                 <p>
                   <strong>Date:</strong>{" "}
-                  {moment(selectedEvent.start).format("DD MMM YYYY")}
+                  {moment(selectedEvent.start).format(
+                    "DD MMM YYYY"
+                  )}
                 </p>
 
               </div>
